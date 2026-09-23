@@ -1,35 +1,87 @@
 # OurDailyVoice
 
-A SwiftUI iOS app for logging daily moods using emoji-based ratings and storing entries in Firebase Firestore.
+A SwiftUI iOS app that helps Boys & Girls Club staff understand how kids are feeling. Youth tap an emoji to check in when they arrive and when they leave, and staff use the results to spot trends across rooms, days, and club locations.
+
+Built with SwiftUI and Firebase, and deployed at Boys & Girls Club locations nationwide.
 
 ---
 
-## Overview
+## About This Project
 
-OurDailyVoice lets users quickly log how they feel each day using a simple 1–9 emoji scale. Entries are saved per user and organized by date. The app calculates statistics such as daily average mood and most frequent emoji.
+OurDailyVoice was built through **Club Next Code Academy**, a Boys & Girls Club program, by a team of six interns. I served as **Lead Software Developer** and co-led the team through design, development, and deployment.
+
+The goal was simple: give club staff a fast, kid-friendly way to hear how their members are doing each day, and turn those check-ins into data they can act on.
+
+## My Role
+
+- Co-led a six-person intern team through planning, development, and deployment
+- Architected the app's real-time data flow in Swift, syncing mood check-ins to Firebase so staff dashboards update without a manual refresh
+- Structured the Firestore data model for multi-location reporting, so each club site sees its own trends without mixing data with other sites
+- Designed the child-facing, icon-based interface to keep check-ins fast and accessible for younger users
+
+---
+
+## Screenshots
+
+<!-- Add 3–4 screenshots using TEST DATA only (never real youth entries). -->
+<!-- Upload images to the repo (e.g. a /screenshots folder), then reference them like this: -->
+<!-- <img src="screenshots/checkin.png" width="250"> <img src="screenshots/analytics.png" width="250"> -->
+
+*Screenshots coming soon.*
 
 ---
 
 ## Features
 
-* Emoji-based mood logging
-* Daily filtering
-* Automatic averages
-* Most frequent mood detection
-* Firebase authentication (anonymous)
-* Firestore cloud storage
-* Haptic feedback
-* Clean SwiftUI UI
+### For Youth
+- One-tap emoji mood check-ins on a simple 1–9 scale
+- Separate "Coming In" and "Leaving" check-ins
+- Haptic feedback for a quick, satisfying response
+
+### For Staff and Administrators
+- **Multi-club support:** select a club site and room, with each site's data kept separate
+- **Entry and exit comparisons:** daily averages for arrival and departure moods, plus the change between them
+- **Club schedules:** configurable entry and exit windows for summer and the school year, including one-day exceptions
+- **Staff review:** check-ins that need a staff decision are flagged, with an audible staff alert
+- **Custom emoji palettes:** clubs can set their own emoji sets, including temporary palettes for specific date ranges
+- **Club analytics:** daily and room-level summaries and mood distributions
+- **Organization analytics:** a cross-club view with weighted calculations across locations
 
 ---
 
 ## Tech Stack
 
-* SwiftUI
-* Firebase Auth
-* Firebase Firestore
-* MVVM architecture
-* CocoaPods dependency management
+- **Swift / SwiftUI**
+- **Firebase Authentication** (anonymous sign-in)
+- **Cloud Firestore** for real-time cloud storage
+- **MVVM** architecture
+- **CocoaPods** for dependency management
+- iOS 17+
+
+---
+
+## Architecture
+
+| Layer     | Responsibility                          |
+| --------- | --------------------------------------- |
+| View      | UI rendering (SwiftUI)                  |
+| ViewModel | UI state and presentation logic         |
+| Service   | Firestore reads, writes, and listeners  |
+| Model     | Data structures (sites, moods, sessions, schedules) |
+
+### Data Model
+
+Each club site owns its own data, which keeps locations isolated from one another:
+
+```
+registered_sites/{clubId}
+├── moods/{entryId}
+├── moodResponses/{responseId}
+├── sessions/{sessionId}
+└── settings/
+    ├── entryExitSchedule
+    └── emojiPalette
+```
 
 ---
 
@@ -37,74 +89,40 @@ OurDailyVoice lets users quickly log how they feel each day using a simple 1–9
 
 ```
 OurDailyVoice
-├── App
-│   └── OurDailyVoiceApp.swift
-├── Core
-│   ├── Constant.swift
-│   ├── Haptics.swift
-│   └── Theme.swift
-├── Models
-│   ├── MoodEntry.swift
-│   └── MoodOption.swift
-├── Services
-│   ├── MoodService.swift
-│   └── MoodViewModel.swift
-├── Views
-│   └── ContentView.swift
+├── App        # App entry point and app state
+├── Core       # Constants, theme, haptics, staff alerts, local stores
+├── Models     # Site, MoodEntry, MoodOption, SessionDay, ClubSchedule, ...
+├── Services   # MoodService (Firestore) and MoodViewModel
+├── Views      # Check-in, club picker, rooms, schedule editor, analytics
 └── Assets
 ```
 
 ---
 
-## Setup Instructions
+## Running Locally
 
-### 1. Clone repo
+1. Clone the repo and install dependencies:
+   ```
+   git clone https://github.com/erictfitih/OurDailyVoice.git
+   cd OurDailyVoice
+   pod install
+   open OurDailyVoice.xcworkspace
+   ```
+2. Create your own Firebase project and add an iOS app with a matching bundle identifier.
+3. Download your own `GoogleService-Info.plist` and add it to the Xcode project. This file is intentionally excluded from the repo via `.gitignore`.
+4. In the Firebase console, enable **Anonymous** sign-in under Authentication.
+5. Select a simulator or device and press **Run**.
 
-```
-git clone <repo-url>
-cd OurDailyVoice
-```
+### Security Note
 
-### 2. Install dependencies
-
-```
-pod install
-```
-
-Open workspace (not project):
-
-```
-open OurDailyVoice.xcworkspace
-```
-
----
-
-### 3. Firebase Setup
-
-1. Create Firebase project
-2. Add iOS app
-3. Download **GoogleService-Info.plist**
-4. Drag into Xcode project root
-5. Ensure bundle identifier matches Firebase console
-
----
-
-### 4. Enable Authentication
-
-Firebase Console → Authentication → Sign-in Method → Enable:
-
-* Anonymous
-
----
-
-### 5. Firestore Rules (dev)
+This app handles data about young people, so Firestore should never run with open rules. At a minimum, require authentication before allowing reads or writes, and scope access to the club the user belongs to:
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
+    match /registered_sites/{clubId}/{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }
@@ -112,79 +130,6 @@ service cloud.firestore {
 
 ---
 
-## Running
+## Team
 
-Select simulator or device → Press Run.
-
----
-
-## Database Schema
-
-```
-users/{uid}/moods/{entryId}
-```
-
-Mood document:
-
-```
-emoji: String
-value: Int
-day: Timestamp
-timestamp: Timestamp
-```
-
----
-
-## Architecture
-
-MVVM separation:
-
-| Layer     | Responsibility         |
-| --------- | ---------------------- |
-| View      | UI rendering           |
-| ViewModel | UI logic + state       |
-| Service   | Firebase communication |
-| Model     | Data structure         |
-
----
-
-## Troubleshooting
-
-### No data appears
-
-Check:
-
-* Bundle ID matches plist
-* Firebase configured
-* Internet connection
-* Firestore rules allow reads
-
----
-
-### Query requires index
-
-Open console link shown in error log and create index.
-
----
-
-### Build fails
-
-Try:
-
-```
-Cmd + Shift + K
-```
-
-or delete DerivedData.
-
----
-
-## Future Improvements
-
-* Club/site grouping
-* User login system
-* Analytics dashboard
-* Mood trends chart
-* Push reminders
-
----
+Built by a team of six interns at Club Next Code Academy (Boys & Girls Club).
