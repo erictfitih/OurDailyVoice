@@ -23,11 +23,10 @@ The goal was simple: give club staff a fast, kid-friendly way to hear how their 
 
 ## Screenshots
 
-<!-- Add 3–4 screenshots using TEST DATA only (never real youth entries). -->
-<!-- Upload images to the repo (e.g. a /screenshots folder), then reference them like this: -->
-<!-- <img src="screenshots/checkin.png" width="250"> <img src="screenshots/analytics.png" width="250"> -->
-
-*Screenshots coming soon.*
+<img width="220" alt="preview" src="https://github.com/user-attachments/assets/16912853-b630-4803-b849-bca528776a2a" />
+<img width="220" alt="preview-4" src="https://github.com/user-attachments/assets/6a3ca64c-1dac-48af-83b6-3441359806ce" />
+<img width="220" alt="preview-3" src="https://github.com/user-attachments/assets/7693233d-d096-40cb-8eb6-011ec04836fc" />
+<img width="220" alt="preview-2" src="https://github.com/user-attachments/assets/195941fa-411f-41f4-87d2-8b53d7f350d9" />
 
 ---
 
